@@ -24,6 +24,11 @@ window.INVITE = {
   // Si se deja vacío, la confirmación solo se muestra en pantalla.
   whatsapp: '',
 
+  // Conexión con JotaPG: a dónde se envían las confirmaciones y a qué invitación pertenecen.
+  // Si rsvpUrl se deja vacío, el formulario solo muestra la respuesta en pantalla.
+  rsvpUrl: 'https://jotapg.pages.dev/api/rsvp',
+  inviteId: 'muestra-3',
+
   // Lista de invitados de la muestra (nombre, pases disponibles, últimos 4 dígitos del celular).
   guests: [
     { name: 'Juan Pérez', passes: 2, phone: '1234' },
