@@ -142,7 +142,6 @@ function updateTimeline() {
 }
 
 /* ---------- Confirmación de asistencia ---------- */
-const guests = I.guests || [];
 const rsvpForm = $('rsvpForm');
 const guestName = $('guestName');
 const guestPasses = $('guestPasses');
@@ -150,44 +149,75 @@ const guestPhone = $('guestPhone');
 const guestHint = $('guestHint');
 const feedback = $('formFeedback');
 
-const normalize = (text) => text.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim().replace(/\s+/g, ' ');
-function findGuest(query) {
-  const words = normalize(query).split(' ').filter(Boolean);
-  if (words.length < 2) return null;
-  return guests.find((guest) => words.every((word) => normalize(guest.name).includes(word))) || null;
-}
 const passesText = (n) => `${n} pase${n === 1 ? '' : 's'}`;
+
+// Invitado encontrado en la lista (la lista vive en JotaPG, no en esta página).
+let currentGuest = null;
+let lookupTimer = null;
+let lookupRun = 0;
 
 function resetPasses() {
   guestPasses.replaceChildren(new Option('Primero escribe tu nombre', ''));
   guestPasses.disabled = true;
 }
 
+// Pregunta a JotaPG quién es. Devuelve { found, name, passes, ambiguous } o null si falló la conexión.
+async function lookupGuest(name) {
+  try {
+    const res = await fetch(I.lookupUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ invite_id: I.inviteId, name })
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
 guestName.addEventListener('input', () => {
   feedback.textContent = '';
-  const guest = findGuest(guestName.value);
-  if (guest) {
-    const options = [];
-    for (let n = guest.passes; n >= 1; n -= 1) options.push(new Option(passesText(n), String(n)));
-    options.push(new Option('No podré asistir', '0'));
-    guestPasses.replaceChildren(...options);
-    guestPasses.disabled = false;
-    guestHint.textContent = `Hola, ${guest.name}. Tienes ${passesText(guest.passes)} disponibles.`;
-  } else {
-    resetPasses();
-    guestHint.textContent = normalize(guestName.value).split(' ').length >= 2
-      ? 'No encontramos ese nombre. Escríbelo como aparece en tu invitación.'
-      : '';
+  currentGuest = null;
+  resetPasses();
+  clearTimeout(lookupTimer);
+  lookupRun += 1;
+
+  const typed = guestName.value.trim();
+  if (typed.split(/\s+/).filter(Boolean).length < 2) {
+    guestHint.textContent = '';
+    return;
   }
+
+  // Espera a que termine de escribir para no preguntar en cada letra.
+  const run = lookupRun;
+  lookupTimer = setTimeout(async () => {
+    const result = await lookupGuest(typed);
+    if (run !== lookupRun) return; // siguió escribiendo: esta respuesta ya no sirve
+    if (!result) {
+      guestHint.textContent = 'No pudimos buscar tu nombre. Revisa tu conexión e inténtalo de nuevo.';
+    } else if (result.found) {
+      currentGuest = { name: result.name, passes: result.passes };
+      const options = [];
+      for (let n = result.passes; n >= 1; n -= 1) options.push(new Option(passesText(n), String(n)));
+      options.push(new Option('No podré asistir', '0'));
+      guestPasses.replaceChildren(...options);
+      guestPasses.disabled = false;
+      guestHint.textContent = `Hola, ${result.name}. Tienes ${passesText(result.passes)} disponibles.`;
+    } else {
+      guestHint.textContent = result.ambiguous
+        ? 'Hay más de un invitado con ese nombre. Escríbelo completo como aparece en tu invitación.'
+        : 'No encontramos ese nombre. Escríbelo como aparece en tu invitación.';
+    }
+  }, 350);
 });
 
 guestPhone.addEventListener('input', () => {
   guestPhone.value = guestPhone.value.replace(/\D/g, '').slice(0, 4);
 });
 
-// Envía la respuesta a JotaPG. Devuelve true si se guardó.
-async function sendRsvp(guest, attending) {
-  if (!I.rsvpUrl) return true; // sin conexión configurada: modo muestra
+// Envía la respuesta a JotaPG. Devuelve { ok: true } o { ok: false, error }.
+async function sendRsvp(guest, attending, phone) {
   try {
     const res = await fetch(I.rsvpUrl, {
       method: 'POST',
@@ -195,25 +225,34 @@ async function sendRsvp(guest, attending) {
       body: JSON.stringify({
         invite_id: I.inviteId,
         guest_name: guest.name,
+        phone_last4: phone,
         attending: attending > 0,
         guests_count: attending
       })
     });
-    return res.ok;
+    if (res.ok) return { ok: true };
+    const body = await res.json().catch(() => ({}));
+    return { ok: false, error: body.error || 'error' };
   } catch {
-    return false;
+    return { ok: false, error: 'network' };
   }
 }
 
+const rsvpErrors = {
+  wrong_phone: 'Los últimos 4 dígitos del celular no coinciden.',
+  guest_not_found: 'Escribe tu nombre y apellido tal como aparece en tu invitación.',
+  invalid_guests_count: 'La cantidad de pases no es válida. Elige una de la lista.'
+};
+
 rsvpForm.addEventListener('submit', async (event) => {
   event.preventDefault();
-  const guest = findGuest(guestName.value);
+  const guest = currentGuest;
   if (!guest) {
     feedback.textContent = 'Escribe tu nombre y apellido tal como aparece en tu invitación.';
     return;
   }
-  if (guestPhone.value !== guest.phone) {
-    feedback.textContent = 'Los últimos 4 dígitos del celular no coinciden.';
+  if (guestPhone.value.length !== 4) {
+    feedback.textContent = 'Escribe los últimos 4 dígitos de tu celular.';
     return;
   }
   const attending = Number(guestPasses.value);
@@ -221,10 +260,11 @@ rsvpForm.addEventListener('submit', async (event) => {
   const submitButton = rsvpForm.querySelector('button[type="submit"]');
   submitButton.disabled = true;
   feedback.textContent = 'Enviando tu respuesta…';
-  const saved = await sendRsvp(guest, attending);
+  const result = await sendRsvp(guest, attending, guestPhone.value);
   submitButton.disabled = false;
-  if (!saved) {
-    feedback.textContent = 'No pudimos guardar tu respuesta. Inténtalo de nuevo en un momento.';
+  if (!result.ok) {
+    feedback.textContent =
+      rsvpErrors[result.error] || 'No pudimos guardar tu respuesta. Inténtalo de nuevo en un momento.';
     return;
   }
 
@@ -237,11 +277,10 @@ rsvpForm.addEventListener('submit', async (event) => {
       : `Hola, soy ${guest.name}. Lamentablemente no podré asistir.`;
     window.open(`https://wa.me/${I.whatsapp}?text=${encodeURIComponent(text)}`, '_blank', 'noopener');
     feedback.textContent = `${reply} Se abrió WhatsApp para enviar tu respuesta.`;
-  } else if (I.rsvpUrl) {
-    feedback.textContent = reply;
   } else {
-    feedback.textContent = `${reply} (Muestra: esta respuesta todavía no se envía a los novios.)`;
+    feedback.textContent = reply;
   }
+  currentGuest = null;
   rsvpForm.reset();
   resetPasses();
   guestHint.textContent = '';
