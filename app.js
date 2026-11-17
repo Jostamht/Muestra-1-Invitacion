@@ -185,7 +185,27 @@ guestPhone.addEventListener('input', () => {
   guestPhone.value = guestPhone.value.replace(/\D/g, '').slice(0, 4);
 });
 
-rsvpForm.addEventListener('submit', (event) => {
+// Envía la respuesta a JotaPG. Devuelve true si se guardó.
+async function sendRsvp(guest, attending) {
+  if (!I.rsvpUrl) return true; // sin conexión configurada: modo muestra
+  try {
+    const res = await fetch(I.rsvpUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        invite_id: I.inviteId,
+        guest_name: guest.name,
+        attending: attending > 0,
+        guests_count: attending
+      })
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+rsvpForm.addEventListener('submit', async (event) => {
   event.preventDefault();
   const guest = findGuest(guestName.value);
   if (!guest) {
@@ -197,6 +217,17 @@ rsvpForm.addEventListener('submit', (event) => {
     return;
   }
   const attending = Number(guestPasses.value);
+
+  const submitButton = rsvpForm.querySelector('button[type="submit"]');
+  submitButton.disabled = true;
+  feedback.textContent = 'Enviando tu respuesta…';
+  const saved = await sendRsvp(guest, attending);
+  submitButton.disabled = false;
+  if (!saved) {
+    feedback.textContent = 'No pudimos guardar tu respuesta. Inténtalo de nuevo en un momento.';
+    return;
+  }
+
   const reply = attending > 0
     ? `¡Gracias, ${guest.name}! Confirmaste ${passesText(attending)}.`
     : `Gracias por avisarnos, ${guest.name}. Lamentamos que no puedas acompañarnos.`;
@@ -206,6 +237,8 @@ rsvpForm.addEventListener('submit', (event) => {
       : `Hola, soy ${guest.name}. Lamentablemente no podré asistir.`;
     window.open(`https://wa.me/${I.whatsapp}?text=${encodeURIComponent(text)}`, '_blank', 'noopener');
     feedback.textContent = `${reply} Se abrió WhatsApp para enviar tu respuesta.`;
+  } else if (I.rsvpUrl) {
+    feedback.textContent = reply;
   } else {
     feedback.textContent = `${reply} (Muestra: esta respuesta todavía no se envía a los novios.)`;
   }
