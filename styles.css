@@ -157,6 +157,8 @@ dd{margin:2px 0 0;font-size:18px}
 }
 @media(prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
+  .rsvp-form label::before,.rsvp-form label::after{transition:none}
+  .rsvp-form label.is-found input,.form-hint.is-found{animation:none}
   .envelope-card,.reveal{opacity:1;transform:none;animation:none;transition:none}
   .hero-photo img,.intro-image img{animation:none}
   .print,.rsvp-button{transition:none}
@@ -328,3 +330,15 @@ body.is-locked{overflow:hidden}
 @media (max-width:700px){
   .hero-action{right:auto;left:20px}
 }
+
+/* Nombre encontrado: la línea de abajo se llena, aparece una palomita y el saludo sube. */
+:root{--found:#3f6b4f}
+.rsvp-form label{position:relative}
+.rsvp-form label::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--found);transform:scaleX(0);transform-origin:left;transition:transform .55s cubic-bezier(.2,.8,.2,1)}
+.rsvp-form label::before{content:"\2713";position:absolute;right:2px;bottom:14px;color:var(--found);font:700 18px/1 var(--sans);opacity:0;transform:scale(.4);transition:opacity .2s,transform .2s}
+.rsvp-form label.is-found::after{transform:scaleX(1)}
+.rsvp-form label.is-found::before{opacity:1;transform:scale(1);transition:opacity .3s .25s,transform .45s .25s cubic-bezier(.34,1.56,.64,1)}
+.rsvp-form label.is-found input{padding-right:30px;animation:foundGlow 1.1s ease-out}
+.form-hint.is-found{color:var(--ink);animation:hintIn .5s .15s both}
+@keyframes foundGlow{0%{background:rgba(63,107,79,.18)}100%{background:transparent}}
+@keyframes hintIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
