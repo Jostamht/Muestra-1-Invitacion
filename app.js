@@ -148,6 +148,13 @@ const guestPasses = $('guestPasses');
 const guestPhone = $('guestPhone');
 const guestHint = $('guestHint');
 const feedback = $('formFeedback');
+const nameField = guestName.closest('label');
+
+// Marca (o desmarca) que el nombre ya se encontró: la línea se llena, aparece una palomita y el saludo sube.
+function setFound(found) {
+  nameField.classList.toggle('is-found', found);
+  guestHint.classList.toggle('is-found', found);
+}
 
 const passesText = (n) => `${n} pase${n === 1 ? '' : 's'}`;
 
@@ -179,6 +186,7 @@ async function lookupGuest(name) {
 guestName.addEventListener('input', () => {
   feedback.textContent = '';
   currentGuest = null;
+  setFound(false);
   resetPasses();
   clearTimeout(lookupTimer);
   lookupRun += 1;
@@ -204,6 +212,7 @@ guestName.addEventListener('input', () => {
       guestPasses.replaceChildren(...options);
       guestPasses.disabled = false;
       guestHint.textContent = `Hola, ${result.name}. Tienes ${passesText(result.passes)} disponibles.`;
+      setFound(true);
     } else {
       guestHint.textContent = result.ambiguous
         ? 'Hay más de un invitado con ese nombre. Escríbelo completo como aparece en tu invitación.'
@@ -213,7 +222,8 @@ guestName.addEventListener('input', () => {
 });
 
 guestPhone.addEventListener('input', () => {
-  guestPhone.value = guestPhone.value.replace(/\D/g, '').slice(0, 4);
+  // Se aceptan espacios, guiones y el +; el servidor se queda solo con los dígitos.
+  guestPhone.value = guestPhone.value.replace(/[^\d+\s()-]/g, '');
 });
 
 // Envía la respuesta a JotaPG. Devuelve { ok: true } o { ok: false, error }.
@@ -225,7 +235,7 @@ async function sendRsvp(guest, attending, phone) {
       body: JSON.stringify({
         invite_id: I.inviteId,
         guest_name: guest.name,
-        phone_last4: phone,
+        phone,
         attending: attending > 0,
         guests_count: attending
       })
@@ -239,7 +249,7 @@ async function sendRsvp(guest, attending, phone) {
 }
 
 const rsvpErrors = {
-  wrong_phone: 'Los últimos 4 dígitos del celular no coinciden.',
+  wrong_phone: 'Ese número de celular no coincide con el de tu invitación.',
   guest_not_found: 'Escribe tu nombre y apellido tal como aparece en tu invitación.',
   invalid_guests_count: 'La cantidad de pases no es válida. Elige una de la lista.'
 };
@@ -251,8 +261,8 @@ rsvpForm.addEventListener('submit', async (event) => {
     feedback.textContent = 'Escribe tu nombre y apellido tal como aparece en tu invitación.';
     return;
   }
-  if (guestPhone.value.length !== 4) {
-    feedback.textContent = 'Escribe los últimos 4 dígitos de tu celular.';
+  if (guestPhone.value.replace(/\D/g, '').length < 7) {
+    feedback.textContent = 'Escribe tu número de celular completo.';
     return;
   }
   const attending = Number(guestPasses.value);
@@ -281,6 +291,7 @@ rsvpForm.addEventListener('submit', async (event) => {
     feedback.textContent = reply;
   }
   currentGuest = null;
+  setFound(false);
   rsvpForm.reset();
   resetPasses();
   guestHint.textContent = '';
