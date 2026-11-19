@@ -342,3 +342,54 @@ body.is-locked{overflow:hidden}
 .form-hint.is-found{color:var(--ink);animation:hintIn .5s .15s both}
 @keyframes foundGlow{0%{background:rgba(63,107,79,.18)}100%{background:transparent}}
 @keyframes hintIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ===== Tema ajedrez, números alineados, ritmo de color y ajustes de diseño ===== */
+@font-face{font-family:"Chess";font-style:normal;font-weight:400;font-display:swap;src:url("fonts/chess-symbols.woff2") format("woff2");unicode-range:U+25F7,U+2654-265F}
+:root{--gold:#b8975a;--gold-deep:#96763a;--sq:clamp(18px,2.4vw,32px)}
+
+/* Piezas: siempre la misma tipografía, en todos los celulares */
+.family-icon,.dress-icon,.gift h2:before,.zoom h2:before,dt span{font-family:"Chess","Noto Sans Symbols 2","Segoe UI Symbol",serif;font-variant-emoji:text}
+.family-icon,.dress-icon{color:var(--gold)}
+.gift h2:before,.zoom h2:before{letter-spacing:.35em;font-size:34px}
+.gift h2:before{content:"\2659\00a0\2658\00a0\2659";color:var(--gold)}
+.zoom h2:before{content:"\2659\00a0\2657\00a0\2659";color:var(--gold-deep)}
+dt span{color:var(--gold-deep)}
+
+/* Tablero: franja de cuadros entre secciones */
+.checker{height:var(--sq);background:repeating-conic-gradient(var(--ink) 0 25%,var(--paper) 0 50%) 0 0/calc(var(--sq)*2) calc(var(--sq)*2)}
+
+/* Un solo acento cálido */
+.progress span{background:var(--gold)}
+.underlined{border-bottom-color:var(--gold)}
+.envelope-card .seal{border:0;box-shadow:0 0 0 6px #151412,0 0 0 7.5px var(--gold)}
+.envelope-card .seal:before{border-color:var(--gold)}
+.date-number b{color:var(--gold-deep)}
+
+/* Números alineados a la línea base (Playfair usa números "de texto" por defecto) */
+.date-number,.timer strong,.event-time,.schedule-list time{font-variant-numeric:lining-nums}
+
+/* Cronograma en claro para alternar el ritmo oscuro/claro */
+.schedule{background:var(--paper);color:var(--ink)}
+.schedule-list:before{background:#cfc6bb}
+.schedule-list i{background:#cfc6bb}
+.schedule-list li span,.schedule-list li time{color:#8d857c}
+.schedule-list li.is-lit span,.schedule-list li.is-lit time{color:var(--ink)}
+.schedule-list li.is-lit i{background:var(--gold-deep);box-shadow:0 0 0 7px rgba(150,118,58,.22)}
+
+/* Título de la galería con interlineado más abierto */
+.gallery h2{line-height:.86}
+
+@media(min-width:701px){
+  /* Código de vestimenta: tarjetas más anchas */
+  .dress{grid-template-columns:.8fr 1.2fr;gap:clamp(32px,5vw,80px)}
+  .dress-notes{gap:clamp(14px,1.6vw,24px)}
+  /* Pie de página: el texto y el nombre grande ya no se montan sobre el formulario */
+  .footer{display:flex;flex-direction:column}
+  .footer-copy{flex:none}
+  .footer-note{position:static;margin:auto 0 0;padding-top:clamp(48px,6vw,90px);padding-bottom:clamp(24px,3vw,44px)}
+  .footer-name{position:static;margin:0 0 -.08em}
+}
+@media(max-width:700px){
+  .gallery h2{line-height:.92}
+  .date-number{gap:10px;line-height:.82}
+}
