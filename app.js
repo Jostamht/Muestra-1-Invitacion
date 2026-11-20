@@ -4,6 +4,93 @@ const I = window.INVITE || {};
 /* ---------- Datos de la invitación (invite.js) ---------- */
 const eventDate = new Date(I.eventStart || '2026-12-31T17:00:00-04:00');
 
+/* ---------- Secciones que se arman con los datos de invite.js ---------- */
+function el(tag, attrs, ...children) {
+  const node = document.createElement(tag);
+  Object.entries(attrs || {}).forEach(([k, v]) => { if (v !== undefined && v !== '') node.setAttribute(k, v); });
+  children.forEach((c) => node.append(c));
+  return node;
+}
+function lines(list) {
+  const out = [];
+  (list || []).forEach((text, i) => { if (i) out.push(el('br')); out.push(text); });
+  return out;
+}
+function photoAt(path) {
+  return path.split('.').reduce((o, k) => (o == null ? o : o[k]), (I.photos || {}));
+}
+const SCHEDULE_ICONS = ['\u2661', '\u266B', '\u2726', '\u2321', '\u263D'];
+const FAMILY_ICONS = { bride: '\u265D', groom: '\u265C' };
+
+function renderSections() {
+  // Fotos: cada <img data-photo="..."> toma su ruta y descripción de I.photos
+  document.querySelectorAll('img[data-photo]').forEach((img) => {
+    const photo = photoAt(img.dataset.photo);
+    if (!photo || !photo.src) return;
+    img.src = photo.src;
+    img.alt = photo.alt || '';
+  });
+
+  // Familias
+  const familyGrid = $('familyGrid');
+  if (familyGrid && I.families) {
+    familyGrid.replaceChildren(...['bride', 'groom'].filter((k) => I.families[k]).map((k) => el('article', { class: 'reveal' },
+      el('span', { class: 'family-icon', 'aria-hidden': 'true' }, FAMILY_ICONS[k]),
+      el('h3', {}, I.families[k].title),
+      el('p', {}, ...lines(I.families[k].lines)))));
+  }
+
+  // Ceremonia y recepción
+  const eventList = $('eventList');
+  if (eventList) {
+    const events = [['ceremony', 'ceremonyTime'], ['reception', 'receptionTime']]
+      .filter(([key]) => I[key] && I[key].show !== false);
+    eventList.replaceChildren(...events.map(([key, timeKey]) => {
+      const e = I[key];
+      const photo = (I.photos || {})[key] || {};
+      const mapAttrs = { href: e.mapUrl || 'https://maps.google.com', target: '_blank', rel: 'noreferrer' };
+      const map = e.mapImage
+        ? el('a', { class: 'event-map', ...mapAttrs }, el('img', { src: e.mapImage, alt: `Mapa de ${e.place}`, loading: 'lazy', style: 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover' }))
+        : el('a', { class: 'event-map', ...mapAttrs }, el('span', {}, e.mapText || 'Ver en el mapa'));
+      return el('article', { class: 'event reveal' },
+        el('figure', { class: 'venue-photo' }, el('img', { loading: 'lazy', decoding: 'async', src: photo.src, alt: photo.alt || '' })),
+        el('p', { class: 'event-time' }, I[timeKey] || ''),
+        el('div', {}, el('h3', {}, e.title), el('p', {}, e.place, el('br'), e.address),
+          el('a', mapAttrs, 'Abrir ubicación')),
+        map);
+    }));
+    const day = document.getElementById('dia');
+    if (day && !events.length) day.hidden = true;
+  }
+
+  // Cronograma
+  const scheduleList = $('scheduleList');
+  if (scheduleList && I.schedule) {
+    scheduleList.replaceChildren(...I.schedule.map((item, i) => el('li', { class: 'reveal' },
+      el('i', { 'aria-hidden': 'true' }, item.icon || SCHEDULE_ICONS[i % SCHEDULE_ICONS.length]),
+      el('span', {}, el('time', {}, item.time), ` ${item.text}`))));
+    const section = scheduleList.closest('section');
+    if (section && !I.schedule.length) section.hidden = true;
+  }
+
+  // Regalo y Zoom
+  const giftOn = !I.gift || I.gift.show !== false;
+  const zoomOn = !I.zoom || I.zoom.show !== false;
+  if (!giftOn) $('giftCard').hidden = true;
+  if (!zoomOn) $('zoomCard').hidden = true;
+  const details = document.querySelector('.details');
+  if (details && (!giftOn || !zoomOn)) {
+    if (!giftOn && !zoomOn) details.hidden = true;
+    else details.classList.add('is-single');
+  }
+  const qr = $('giftQr');
+  if (qr && I.gift && I.gift.qrImage) {
+    qr.replaceChildren(el('img', { src: I.gift.qrImage, alt: 'Código QR', style: 'width:100%;height:100%;object-fit:contain' }));
+    qr.style.background = '#fff';
+    qr.setAttribute('aria-label', 'Código QR');
+  }
+}
+
 function applyInvitation() {
   if (!window.INVITE) return;
   const tz = I.timeZone || 'America/La_Paz';
@@ -27,7 +114,14 @@ function applyInvitation() {
     dateLabel: `${weekdayCap} · ${dayNumber} de ${monthName} · ${year}`,
     dateLong: `${weekdayCap}, ${dateDay}`,
     coupleUpper: `${I.bride} & ${I.groom}`.toUpperCase(),
-    footerNote: `Gracias por ser parte de nuestra historia · ${dateDay}`
+    footerNote: `Gracias por ser parte de nuestra historia · ${dateDay}`,
+    dressTitle: (I.dress || {}).title,
+    dressText: (I.dress || {}).text,
+    dressWomen: (I.dress || {}).women,
+    dressMen: (I.dress || {}).men,
+    giftText: (I.gift || {}).text,
+    zoomId: (I.zoom || {}).id,
+    zoomPassword: (I.zoom || {}).password
   };
 
   document.querySelectorAll('[data-bind]').forEach((el) => {
@@ -42,6 +136,8 @@ function applyInvitation() {
     amp.textContent = '&';
     el.replaceChildren(I.bride, ' ', amp, ' ', I.groom);
   });
+
+  renderSections();
 
   document.title = `${I.bride} & ${I.groom} — ${day}.${month}.${year}`;
   const description = document.querySelector('meta[name="description"]');

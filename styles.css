@@ -356,7 +356,6 @@ body.is-locked{overflow:hidden}
 dt span{color:var(--gold-deep)}
 
 /* Tablero: franja de cuadros entre secciones */
-.checker{height:var(--sq);background:repeating-conic-gradient(var(--ink) 0 25%,var(--paper) 0 50%) 0 0/calc(var(--sq)*2) calc(var(--sq)*2)}
 
 /* Un solo acento cálido */
 .progress span{background:var(--gold)}
@@ -393,3 +392,4 @@ dt span{color:var(--gold-deep)}
   .gallery h2{line-height:.92}
   .date-number{gap:10px;line-height:.82}
 }
+.details.is-single{grid-template-columns:1fr}
