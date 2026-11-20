@@ -122,6 +122,7 @@
             <label>Tu número de celular<input id="guestPhone" name="guestPhone" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" placeholder="Ej. 71234567" required /></label>
             <p class="form-feedback form-hint" id="guestHint" aria-live="polite"></p>
             <label class="note-field"><span>Nota para los novios <span class="optional">(opcional)</span></span><textarea id="guestNote" name="guestNote" rows="2" maxlength="500" placeholder="Ej. Alergia o menú especial, necesito silla accesible, llegaré después de la ceremonia"></textarea></label>
+            <div id="turnstileBox" class="turnstile-box"></div>
             <button class="rsvp-button" type="submit">Confirmar asistencia</button>
             <p class="form-feedback" id="formFeedback" role="status"></p>
           </form>
@@ -132,6 +133,7 @@
     <p class="credit" id="creditLine" hidden></p>
     </main>
     <div class="gallery-modal" id="galleryModal" aria-hidden="true" role="dialog" aria-label="Vista ampliada de fotografía"><button type="button" aria-label="Cerrar fotografía">×</button><img src="" alt="" /></div>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
     <script src="invite.js"></script>
     <script src="app.js"></script>
   </body>

@@ -444,3 +444,5 @@ body::after{
   .schedule-list li i svg{width:19px;height:19px}
   .schedule-list li time{right:calc(50% + 31px)}
 }
+.turnstile-box:empty{display:none}
+.turnstile-box{margin:4px 0 14px}

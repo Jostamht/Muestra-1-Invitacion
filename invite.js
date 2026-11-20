@@ -158,6 +158,10 @@ window.INVITE = {
   rsvpUrl: 'https://jotapg.pages.dev/api/rsvp',
   inviteId: 'muestra-3',
 
+  // Protección contra spam (Cloudflare Turnstile). Es la clave PÚBLICA del widget; es la misma
+  // para todas las invitaciones. Déjala vacía para apagar la verificación.
+  turnstileSiteKey: '0x4AAAAAAGK7zI2py3imlYle',
+
   /* ==========================================================================
      DEMO — SOLO PARA LA INVITACIÓN DE EJEMPLO.
      BORRAR ESTE BLOQUE COMPLETO (hasta la línea de cierre) AL HACER UNA

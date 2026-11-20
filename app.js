@@ -392,6 +392,24 @@ guestPhone.addEventListener('input', () => {
   guestPhone.value = guestPhone.value.replace(/[^\d+\s()-]/g, '');
 });
 
+/* ---------- Verificación anti-spam (Cloudflare Turnstile) ---------- */
+// Aparece solo si Cloudflare duda de que sea una persona (appearance: interaction-only).
+let turnstileId = null;
+let turnstileToken = '';
+function renderTurnstile() {
+  if (!I.turnstileSiteKey || turnstileId !== null || !window.turnstile) return;
+  turnstileId = window.turnstile.render('#turnstileBox', {
+    sitekey: I.turnstileSiteKey,
+    appearance: 'interaction-only',
+    callback: (token) => { turnstileToken = token; },
+    'expired-callback': () => { turnstileToken = ''; },
+    'error-callback': () => { turnstileToken = ''; }
+  });
+}
+// El script de Cloudflare carga aparte (async): se intenta al cargar la página y al abrir el sobre.
+window.addEventListener('load', renderTurnstile);
+$('openInvitation').addEventListener('click', () => setTimeout(renderTurnstile, 0));
+
 // Envía la respuesta a JotaPG. Devuelve { ok: true } o { ok: false, error }.
 async function sendRsvp(guest, attending, phone, message) {
   try {
@@ -404,7 +422,8 @@ async function sendRsvp(guest, attending, phone, message) {
         phone,
         attending: attending > 0,
         guests_count: attending,
-        message
+        message,
+        turnstile_token: turnstileToken
       })
     });
     if (res.ok) return { ok: true };
@@ -418,7 +437,9 @@ async function sendRsvp(guest, attending, phone, message) {
 const rsvpErrors = {
   wrong_phone: 'Ese número de celular no coincide con el de tu invitación.',
   guest_not_found: 'Escribe tu nombre y apellido tal como aparece en tu invitación.',
-  invalid_guests_count: 'La cantidad de pases no es válida. Elige una de la lista.'
+  invalid_guests_count: 'La cantidad de pases no es válida. Elige una de la lista.',
+  turnstile_failed: 'No pudimos comprobar que eres una persona. Espera unos segundos e inténtalo de nuevo.',
+  too_many_attempts: 'Demasiados intentos con ese nombre. Espera unos minutos e inténtalo de nuevo.'
 };
 
 rsvpForm.addEventListener('submit', async (event) => {
@@ -433,12 +454,19 @@ rsvpForm.addEventListener('submit', async (event) => {
     return;
   }
   const attending = Number(guestPasses.value);
+  if (I.turnstileSiteKey && !turnstileToken) {
+    feedback.textContent = 'Estamos comprobando que eres una persona. Inténtalo de nuevo en unos segundos.';
+    renderTurnstile();
+    return;
+  }
 
   const submitButton = rsvpForm.querySelector('button[type="submit"]');
   submitButton.disabled = true;
   feedback.textContent = 'Enviando tu respuesta…';
   const result = await sendRsvp(guest, attending, guestPhone.value, guestNote.value.trim());
   submitButton.disabled = false;
+  // El token de Turnstile sirve una sola vez: se pide uno nuevo para el próximo intento.
+  if (turnstileId !== null) { turnstileToken = ''; window.turnstile.reset(turnstileId); }
   if (!result.ok) {
     feedback.textContent =
       rsvpErrors[result.error] || 'No pudimos guardar tu respuesta. Inténtalo de nuevo en un momento.';
