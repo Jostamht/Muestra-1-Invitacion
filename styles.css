@@ -405,3 +405,10 @@ body::after{
   background-size:320px 320px,700px 700px;
 }
 @media print{body::after{display:none}}
+
+/* Nota opcional para los novios (ocupa todo el ancho del formulario) */
+.rsvp-form .note-field{grid-column:1/-1}
+.rsvp-form .note-field .optional{font-weight:500;color:var(--soft)}
+.rsvp-form textarea{min-width:0;width:100%;padding:13px 0;border:0;border-bottom:2px solid var(--ink);border-radius:0;background:transparent;color:var(--ink);font:16px/1.4 var(--sans);resize:vertical;outline-offset:6px}
+.rsvp-form textarea::placeholder{color:var(--soft);opacity:.75}
+

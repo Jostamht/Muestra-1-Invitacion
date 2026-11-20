@@ -243,6 +243,7 @@ const guestName = $('guestName');
 const guestPasses = $('guestPasses');
 const guestPhone = $('guestPhone');
 const guestHint = $('guestHint');
+const guestNote = $('guestNote');
 const feedback = $('formFeedback');
 const nameField = guestName.closest('label');
 
@@ -323,7 +324,7 @@ guestPhone.addEventListener('input', () => {
 });
 
 // Envía la respuesta a JotaPG. Devuelve { ok: true } o { ok: false, error }.
-async function sendRsvp(guest, attending, phone) {
+async function sendRsvp(guest, attending, phone, message) {
   try {
     const res = await fetch(I.rsvpUrl, {
       method: 'POST',
@@ -333,7 +334,8 @@ async function sendRsvp(guest, attending, phone) {
         guest_name: guest.name,
         phone,
         attending: attending > 0,
-        guests_count: attending
+        guests_count: attending,
+        message
       })
     });
     if (res.ok) return { ok: true };
@@ -366,7 +368,7 @@ rsvpForm.addEventListener('submit', async (event) => {
   const submitButton = rsvpForm.querySelector('button[type="submit"]');
   submitButton.disabled = true;
   feedback.textContent = 'Enviando tu respuesta…';
-  const result = await sendRsvp(guest, attending, guestPhone.value);
+  const result = await sendRsvp(guest, attending, guestPhone.value, guestNote.value.trim());
   submitButton.disabled = false;
   if (!result.ok) {
     feedback.textContent =
