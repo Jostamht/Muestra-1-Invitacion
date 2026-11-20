@@ -19,7 +19,41 @@ function lines(list) {
 function photoAt(path) {
   return path.split('.').reduce((o, k) => (o == null ? o : o[k]), (I.photos || {}));
 }
-const SCHEDULE_ICONS = ['\u2661', '\u266B', '\u2726', '\u2321', '\u263D'];
+// Íconos de línea para el cronograma. Se eligen por palabras del texto (ceremonia, vals, cena, torta…)
+// o con icon: 'nombre' en invite.js. Nombres: anillos, corazon, musica, cena, torta, brindis, foto, luna, brillo.
+const ICON_PATHS = {
+  anillos: '<circle cx="9" cy="14" r="5"/><circle cx="15" cy="14" r="5"/><path d="M12 3.5l1.6 2.2L12 8 10.4 5.7z"/>',
+  corazon: '<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>',
+  musica: '<circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/><path d="M9 18V6l10-2v12"/>',
+  cena: '<path d="M5 3v6a2 2 0 0 0 4 0V3M7 3v18"/><path d="M17 21V3c-2 1.5-3 4-3 7 0 1.5 1 2.5 3 2.5"/>',
+  torta: '<path d="M4 20h16M5 20v-7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v7"/><path d="M5 16c2 1.5 3.5 1.5 5 0s3.5-1.5 5 0 3 1.5 4 0"/><path d="M12 12V9M12 7c-1-1-1-2 0-3 1 1 1 2 0 3z"/>',
+  brindis: '<path d="M5 4h6l-.6 5.5a2.4 2.4 0 0 1-4.8 0zM8 12v7M5.5 19h5"/><path d="M13 4h6l-.6 5.5a2.4 2.4 0 0 1-4.8 0zM16 12v7M13.5 19h5"/>',
+  foto: '<path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13.5" r="3"/>',
+  luna: '<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>',
+  brillo: '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 16v4M17 18h4"/>'
+};
+const ICON_RULES = [
+  [/ceremonia|iglesia|religios|civil|anillos/, 'anillos'],
+  [/brindis/, 'brindis'],
+  [/torta|pastel/, 'torta'],
+  [/cena|comida|almuerzo|banquete|buffet|cocktel|coctel|aperitivo/, 'cena'],
+  [/vals|baile|musica|fiesta|dj|banda|pista/, 'musica'],
+  [/foto/, 'foto'],
+  [/entrada|llegada|recepcion|bienvenida|novios/, 'corazon'],
+  [/despedida|cierre|final|fin\b|salida/, 'luna']
+];
+const ICON_ORDER = ['corazon', 'musica', 'cena', 'torta', 'luna'];
+function iconNode(item, i) {
+  const node = el('i', { 'aria-hidden': 'true' });
+  node.innerHTML = scheduleIcon(item, i); // SVG propio, sin datos externos
+  return node;
+}
+function scheduleIcon(item, i) {
+  const text = String(item.text || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const name = ICON_PATHS[item.icon] ? item.icon
+    : (ICON_RULES.find(([re]) => re.test(text)) || [])[1] || ICON_ORDER[i % ICON_ORDER.length];
+  return `<svg viewBox="0 0 24 24" aria-hidden="true">${ICON_PATHS[name]}</svg>`;
+}
 const FAMILY_ICONS = { bride: '\u265D', groom: '\u265C' };
 
 function renderSections() {
@@ -67,7 +101,7 @@ function renderSections() {
   const scheduleList = $('scheduleList');
   if (scheduleList && I.schedule) {
     scheduleList.replaceChildren(...I.schedule.map((item, i) => el('li', { class: 'reveal' },
-      el('i', { 'aria-hidden': 'true' }, item.icon || SCHEDULE_ICONS[i % SCHEDULE_ICONS.length]),
+      iconNode(item, i),
       el('span', {}, el('time', {}, item.time), ` ${item.text}`))));
     const section = scheduleList.closest('section');
     if (section && !I.schedule.length) section.hidden = true;
@@ -243,15 +277,10 @@ weddingMusic.addEventListener('pause', () => setMusicUI(false));
 $('openInvitation').addEventListener('click', () => {
   // play() va directo en el clic para que iPhone/Safari lo permita
   weddingMusic.play().catch(() => {});
-  if (envelope.classList.contains('is-opening')) return; // ya se está abriendo
-  envelope.classList.add('is-opening'); // 1) se rompe el sello, se abre la solapa y sale la carta
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  setTimeout(() => {
-    envelope.classList.add('is-open'); // 2) el sobre se desvanece y aparece la invitación
-    invitation.removeAttribute('inert');
-    document.body.classList.remove('is-locked');
-    fitNames();
-  }, reduceMotion ? 0 : 1900);
+  envelope.classList.add('is-open'); // el sobre crece y se desvanece (ver CSS)
+  invitation.removeAttribute('inert');
+  document.body.classList.remove('is-locked');
+  fitNames();
 });
 
 musicToggle.addEventListener('click', () => {
