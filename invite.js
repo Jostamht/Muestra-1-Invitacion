@@ -165,6 +165,6 @@ window.INVITE = {
      formulario de confirmación. tools/sincronizar.mjs avisa si sigue aquí.
      ========================================================================== */
   // Primera línea = título; cada línea siguiente = «Nombre · celular».
-  demoHint: 'Invitación de ejemplo. Para probar la confirmación usa uno de estos invitados:\nInvitado Ejemplo 1 · 71111111\nInvitado Ejemplo 2 · 72222222\nInvitado Ejemplo 3 · 73333333'
+  demoHint: 'Invitación de ejemplo. Para probar la confirmación usa uno de estos invitados:\nInvitado 1 · 77717771\nInvitado 2 · 77727772\nInvitado 3 · 77737773'
   /* ===================== FIN DEL BLOQUE DEMO ===================== */
 };
