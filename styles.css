@@ -393,3 +393,15 @@ dt span{color:var(--gold-deep)}
   .date-number{gap:10px;line-height:.82}
 }
 .details.is-single{grid-template-columns:1fr}
+
+/* Textura de papel muy sutil: grano fino + manchas suaves y grandes, sobre toda la página.
+   Es una capa fija que no recibe clics. Para subirla o bajarla, cambia --paper-grain (0 = sin textura). */
+:root{--paper-grain:.5}
+body::after{
+  content:"";position:fixed;inset:0;z-index:200;pointer-events:none;opacity:var(--paper-grain);
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='320'%3E%3Cfilter id='g' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .36 0 0 0 0 .31 0 0 0 0 .26 1.3 0 0 0 -.38'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='.34'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='700' height='700'%3E%3Cfilter id='f' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.012 .02' numOctaves='2' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .42 0 0 0 0 .36 0 0 0 0 .3 .9 0 0 0 -.3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)' opacity='.16'/%3E%3C/svg%3E");
+  background-size:320px 320px,700px 700px;
+}
+@media print{body::after{display:none}}
