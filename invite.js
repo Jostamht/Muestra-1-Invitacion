@@ -135,7 +135,7 @@ window.INVITE = {
      siteUrl: la dirección final de esta invitación, con https y una barra al final.
      image:   foto grande para la vista previa (ruta o enlace). */
   share: {
-    siteUrl: 'https://muestra-3-invitacion.pages.dev/',
+    siteUrl: 'https://muestra-1-invitacion.pages.dev/',
     image: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&h=630&q=85&sat=-100',
     imageAlt: 'Una pareja celebrando su boda en blanco y negro',
     description: 'Tu presencia hará este día inolvidable.'
