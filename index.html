@@ -115,6 +115,7 @@
 
       <footer id="asistencia" class="footer" aria-labelledby="rsvp-title">
         <div class="footer-copy reveal"><p class="meta">Tu presencia nos hará felices</p><h2 id="rsvp-title">¿Nos acompañas?</h2><p>Busca tu nombre y confirma tus pases.</p>
+          <p class="demo-hint" id="demoHint" hidden></p>
           <form class="rsvp-form" id="rsvpForm">
             <label>Nombre y apellido<input id="guestName" name="guestName" type="search" autocomplete="name" placeholder="Escribe tu nombre" required /></label>
             <label>Pases<select id="guestPasses" name="guestPasses" required disabled><option value="">Primero escribe tu nombre</option></select></label>
@@ -128,6 +129,7 @@
         <p class="footer-note" data-bind="footerNote">Gracias por ser parte de nuestra historia · 31 de diciembre de 2026</p>
         <p class="footer-name" aria-hidden="true" data-bind="coupleUpper">NOVIA &amp; NOVIO</p>
       </footer>
+    <p class="credit" id="creditLine" hidden></p>
     </main>
     <div class="gallery-modal" id="galleryModal" aria-hidden="true" role="dialog" aria-label="Vista ampliada de fotografía"><button type="button" aria-label="Cerrar fotografía">×</button><img src="" alt="" /></div>
     <script src="invite.js"></script>

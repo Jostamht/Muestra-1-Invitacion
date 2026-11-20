@@ -30,8 +30,10 @@ tools/sincronizar.mjs  Actualiza la vista previa al compartir y avisa de datos d
    (por ejemplo `https://juancarla.pages.dev`) y, si ya se sabe, fecha y hora. Salen tres líneas
    (`lookupUrl`, `rsvpUrl`, `inviteId`) y el mensaje para la pareja con su código.
 2. **Copiar este proyecto** a un repositorio nuevo con el nombre de la pareja.
-3. **Cambiar `invite.js`:** los datos de la boda y las 3 líneas de JotaPG (sección 10).
+3. **Cambiar `invite.js`:** los datos de la boda y las 3 líneas de JotaPG (sección 11).
    La dirección de `share.siteUrl` debe ser la misma que se puso en `/admin`.
+   **Borrar el bloque DEMO** del final de `invite.js` (la pista «Invitación de ejemplo. Prueba con…»).
+   La línea «Invitación creada con JotaPG» (sección 10) puede quedarse o apagarse con `show: false`.
 4. **Fotos:** subir las de la pareja a `fotos/` y ponerlas en la sección `photos` de `invite.js`
    (portada, bienvenida, ceremonia, recepción y exactamente 6 para la galería).
    Si hay código QR para regalos o imagen de mapa, también van en `fotos/`.
@@ -48,6 +50,8 @@ tools/sincronizar.mjs  Actualiza la vista previa al compartir y avisa de datos d
 
 ## Qué dejar fuera o apagar
 
+- La pista de demostración: borrar el bloque `DEMO` de `invite.js` (o dejar `demoHint` vacío).
+- El crédito de JotaPG al final: `credit.show: false`.
 - Un lugar que no existe (por ejemplo, ceremonia y recepción en el mismo sitio): `show: false` en `ceremony`
   o `reception`.
 - Sin Zoom o sin regalo: `show: false` en `zoom` o `gift`.
@@ -63,3 +67,10 @@ tools/sincronizar.mjs  Actualiza la vista previa al compartir y avisa de datos d
   por eso la escribe `tools/sincronizar.mjs` dentro de `index.html`. Si se cambia algo de `invite.js`,
   se vuelve a correr.
 - Las fotos de ejemplo son de Unsplash. En una boda real se reemplazan todas.
+
+## La invitación de ejemplo
+
+Esta copia es la invitación de ejemplo (`muestra-3` en JotaPG). Para que quien la vea pueda probar la
+confirmación, en `/admin` la boda `muestra-3` tiene invitados de muestra: `Invitado Ejemplo 1` (71111111),
+`Invitado Ejemplo 2` (72222222) e `Invitado Ejemplo 3` (73333333). La pista que los muestra es el bloque DEMO
+de `invite.js`.

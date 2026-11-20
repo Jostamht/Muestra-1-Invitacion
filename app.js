@@ -73,6 +73,21 @@ function renderSections() {
     if (section && !I.schedule.length) section.hidden = true;
   }
 
+  // Línea de crédito al final (JotaPG)
+  const credit = $('creditLine');
+  if (credit && I.credit && I.credit.show !== false) {
+    credit.replaceChildren(`${I.credit.text || 'Invitación creada con JotaPG'} · `,
+      el('a', { href: I.credit.url, target: '_blank', rel: 'noopener' }, (I.credit.url || '').replace(/^https?:\/\//, '').replace(/\/$/, '')));
+    credit.hidden = false;
+  }
+
+  // Pista de demostración (solo en la invitación de ejemplo; ver sección DEMO de invite.js)
+  const demoHint = $('demoHint');
+  if (demoHint && I.demoHint) {
+    demoHint.textContent = I.demoHint;
+    demoHint.hidden = false;
+  }
+
   // Regalo y Zoom
   const giftOn = !I.gift || I.gift.show !== false;
   const zoomOn = !I.zoom || I.zoom.show !== false;

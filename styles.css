@@ -412,3 +412,7 @@ body::after{
 .rsvp-form textarea{min-width:0;width:100%;padding:13px 0;border:0;border-bottom:2px solid var(--ink);border-radius:0;background:transparent;color:var(--ink);font:16px/1.4 var(--sans);resize:vertical;outline-offset:6px}
 .rsvp-form textarea::placeholder{color:var(--soft);opacity:.75}
 
+
+.credit{margin:0;padding:16px 76px;background:var(--ink);color:var(--inverse);text-align:center;font-size:12px;letter-spacing:.05em}
+.credit a{color:inherit;text-decoration:underline;text-underline-offset:3px}
+.demo-hint{margin:0 0 22px;padding:12px 16px;max-width:39ch;border:1px dashed var(--gold-deep);color:var(--ink);font-size:14px;line-height:1.5;background:rgba(184,151,90,.1)}

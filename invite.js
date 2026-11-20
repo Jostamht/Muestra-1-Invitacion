@@ -50,8 +50,8 @@ window.INVITE = {
   ceremony: {
     show: true,
     title: 'Ceremonia religiosa',
-    place: 'Lugar de la ceremonia',
-    address: 'Insertar dirección',
+    place: 'Iglesia de Ejemplo',
+    address: 'Av. Ejemplo 123, La Paz',
     mapUrl: 'https://maps.google.com',
     mapText: 'Ver en el mapa',
     mapImage: ''
@@ -59,8 +59,8 @@ window.INVITE = {
   reception: {
     show: true,
     title: 'Recepción',
-    place: 'Lugar de la recepción',
-    address: 'Insertar dirección',
+    place: 'Salón de Ejemplo',
+    address: 'Calle Ejemplo 456, La Paz',
     mapUrl: 'https://maps.google.com',
     mapText: 'Ver en el mapa',
     mapImage: ''
@@ -125,8 +125,8 @@ window.INVITE = {
   },
   zoom: {
     show: true,
-    id: 'Insertar ID',
-    password: 'Insertar contraseña'
+    id: '123 456 7890',
+    password: 'ejemplo'
   },
 
   /* ---------- 9. Vista previa al compartir el enlace ----------
@@ -141,12 +141,29 @@ window.INVITE = {
     description: 'Tu presencia hará este día inolvidable.'
   },
 
-  /* ---------- 10. Conexión con JotaPG ----------
+  /* ---------- 10. Crédito de JotaPG ----------
+     Línea pequeña al final de la invitación. show: false la oculta. */
+  credit: {
+    show: true,
+    text: 'Invitación creada con JotaPG',
+    url: 'https://jotapg.pages.dev'
+  },
+
+  /* ---------- 11. Conexión con JotaPG ----------
      De dónde sale la lista de invitados, a dónde se envían las confirmaciones
      y a qué invitación pertenecen. La lista vive en JotaPG (no en este archivo),
      así nadie puede verla desde la página.
      Estas 3 líneas las entrega /admin al crear la boda. */
   lookupUrl: 'https://jotapg.pages.dev/api/guest-lookup',
   rsvpUrl: 'https://jotapg.pages.dev/api/rsvp',
-  inviteId: 'muestra-3'
+  inviteId: 'muestra-3',
+
+  /* ==========================================================================
+     DEMO — SOLO PARA LA INVITACIÓN DE EJEMPLO.
+     BORRAR ESTE BLOQUE COMPLETO (hasta la línea de cierre) AL HACER UNA
+     INVITACIÓN REAL. Si queda, aparece una caja con esta pista encima del
+     formulario de confirmación. tools/sincronizar.mjs avisa si sigue aquí.
+     ========================================================================== */
+  demoHint: 'Invitación de ejemplo. Prueba con: Invitado Ejemplo 1 · celular 71111111 (también Invitado Ejemplo 2 · 72222222, Invitado Ejemplo 3 · 73333333).'
+  /* ===================== FIN DEL BLOQUE DEMO ===================== */
 };

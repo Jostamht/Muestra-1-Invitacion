@@ -53,7 +53,9 @@ const sospechosos = [
   [/Lugar de la|Padre de la|Madre de la|Padre del|Madre del/g, 'lugares o familiares de ejemplo'],
   [/unsplash\.com/g, 'fotos de ejemplo (Unsplash)'],
   [/"inviteId":"muestra-3"/g, 'inviteId de la muestra'],
-  [/maps\.google\.com"/g, 'enlace de mapa genérico']
+  [/maps\.google\.com"/g, 'enlace de mapa genérico'],
+  [/"demoHint"/g, 'bloque DEMO (demoHint): borrarlo de invite.js en una boda real'],
+  [/Ejemplo/g, 'textos "Ejemplo" (lugares, direcciones o invitados de muestra)']
 ];
 let avisos = 0;
 for (const [pattern, label] of sospechosos) {
