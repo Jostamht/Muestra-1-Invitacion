@@ -164,6 +164,7 @@ window.INVITE = {
      INVITACIÓN REAL. Si queda, aparece una caja con esta pista encima del
      formulario de confirmación. tools/sincronizar.mjs avisa si sigue aquí.
      ========================================================================== */
-  demoHint: 'Invitación de ejemplo. Prueba con: Invitado Ejemplo 1 · celular 71111111 (también Invitado Ejemplo 2 · 72222222, Invitado Ejemplo 3 · 73333333).'
+  // Primera línea = título; cada línea siguiente = «Nombre · celular».
+  demoHint: 'Invitación de ejemplo. Para probar la confirmación usa uno de estos invitados:\nInvitado Ejemplo 1 · 71111111\nInvitado Ejemplo 2 · 72222222\nInvitado Ejemplo 3 · 73333333'
   /* ===================== FIN DEL BLOQUE DEMO ===================== */
 };

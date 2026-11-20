@@ -84,7 +84,27 @@ function renderSections() {
   // Pista de demostración (solo en la invitación de ejemplo; ver sección DEMO de invite.js)
   const demoHint = $('demoHint');
   if (demoHint && I.demoHint) {
-    demoHint.textContent = I.demoHint;
+    const [title, ...rows] = I.demoHint.split('\n').map((line) => line.trim()).filter(Boolean);
+    const heading = document.createElement('strong');
+    heading.textContent = title;
+    demoHint.replaceChildren(heading);
+    if (rows.length) {
+      const list = document.createElement('ul');
+      rows.forEach((row) => {
+        const [name, phone] = row.split(' · ');
+        const item = document.createElement('li');
+        const nameEl = document.createElement('span');
+        nameEl.textContent = name;
+        item.appendChild(nameEl);
+        if (phone) {
+          const phoneEl = document.createElement('b');
+          phoneEl.textContent = phone;
+          item.appendChild(phoneEl);
+        }
+        list.appendChild(item);
+      });
+      demoHint.appendChild(list);
+    }
     demoHint.hidden = false;
   }
 
