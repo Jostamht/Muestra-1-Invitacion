@@ -223,10 +223,15 @@ weddingMusic.addEventListener('pause', () => setMusicUI(false));
 $('openInvitation').addEventListener('click', () => {
   // play() va directo en el clic para que iPhone/Safari lo permita
   weddingMusic.play().catch(() => {});
-  envelope.classList.add('is-open');
-  invitation.removeAttribute('inert');
-  document.body.classList.remove('is-locked');
-  fitNames();
+  if (envelope.classList.contains('is-opening')) return; // ya se está abriendo
+  envelope.classList.add('is-opening'); // 1) se rompe el sello, se abre la solapa y sale la carta
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  setTimeout(() => {
+    envelope.classList.add('is-open'); // 2) el sobre se desvanece y aparece la invitación
+    invitation.removeAttribute('inert');
+    document.body.classList.remove('is-locked');
+    fitNames();
+  }, reduceMotion ? 0 : 1900);
 });
 
 musicToggle.addEventListener('click', () => {

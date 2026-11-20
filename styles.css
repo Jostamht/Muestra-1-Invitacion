@@ -400,8 +400,8 @@ dt span{color:var(--gold-deep)}
 body::after{
   content:"";position:fixed;inset:0;z-index:200;pointer-events:none;opacity:var(--paper-grain);
   background-image:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='320'%3E%3Cfilter id='g' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .36 0 0 0 0 .31 0 0 0 0 .26 1.3 0 0 0 -.38'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='.34'/%3E%3C/svg%3E"),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='700' height='700'%3E%3Cfilter id='f' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.012 .02' numOctaves='2' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .42 0 0 0 0 .36 0 0 0 0 .3 .9 0 0 0 -.3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)' opacity='.16'/%3E%3C/svg%3E");
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='320'%3E%3Cfilter id='g' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .3 0 0 0 0 .3 1.3 0 0 0 -.38'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='.34'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='700' height='700'%3E%3Cfilter id='f' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.012 .02' numOctaves='2' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .34 0 0 0 0 .34 0 0 0 0 .34 .9 0 0 0 -.3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)' opacity='.1'/%3E%3C/svg%3E");
   background-size:320px 320px,700px 700px;
 }
 @media print{body::after{display:none}}
@@ -416,3 +416,23 @@ body::after{
 .credit{margin:0;padding:16px 76px;background:var(--ink);color:var(--inverse);text-align:center;font-size:12px;letter-spacing:.05em}
 .credit a{color:inherit;text-decoration:underline;text-underline-offset:3px}
 .demo-hint{margin:0 0 22px;padding:12px 16px;max-width:39ch;border:1px dashed var(--gold-deep);color:var(--ink);font-size:14px;line-height:1.5;background:rgba(184,151,90,.1)}
+
+
+/* ===== Apertura del sobre: se rompe el sello, la solapa se abre y sale la carta ===== */
+.envelope-card{overflow:visible;perspective:900px}
+.envelope-flap{position:absolute;left:0;right:0;top:0;height:54%;z-index:1;pointer-events:none;
+  background:linear-gradient(180deg,#24211e,#1a1816);clip-path:polygon(0 0,100% 0,50% 100%);
+  transform-origin:50% 0;transition:transform .95s cubic-bezier(.55,0,.2,1) .3s}
+.envelope-letter{position:absolute;left:7%;right:7%;top:12%;bottom:12%;z-index:2;display:grid;place-items:center;pointer-events:none;
+  background:var(--paper);color:var(--ink);font:500 clamp(30px,6vw,58px)/1 var(--serif);letter-spacing:-.04em;
+  box-shadow:0 18px 40px rgba(0,0,0,.35);opacity:0;transform:translateY(0) scale(.96);
+  transition:transform 1.05s cubic-bezier(.3,.7,.2,1) .75s,opacity .25s ease .7s}
+.envelope-card .seal{z-index:4}
+.envelope-intro{transition:opacity .6s ease .15s,transform .6s ease .15s}
+.envelope.is-opening .envelope-card .seal{transform:scale(.55) rotate(-16deg);opacity:0;pointer-events:none;transition:transform .45s ease,opacity .35s ease .05s}
+.envelope.is-opening .envelope-flap{transform:rotateX(180deg)}
+.envelope.is-opening .envelope-letter{opacity:1;transform:translateY(-34%) scale(1.04)}
+.envelope.is-opening .envelope-intro{opacity:0;transform:translateY(-14px)}
+@media(prefers-reduced-motion:reduce){
+  .envelope-flap,.envelope-letter,.envelope-intro{transition:none}
+}
