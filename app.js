@@ -316,6 +316,13 @@ const guestNote = $('guestNote');
 const feedback = $('formFeedback');
 const nameField = guestName.closest('label');
 
+// Mensaje debajo del formulario. kind: 'error' (rojo), 'warn' (dorado), 'success' (verde) o '' (neutro).
+function showFeedback(text, kind = '') {
+  feedback.textContent = text;
+  feedback.className = 'form-feedback' + (kind && text ? ` is-${kind}` : '');
+  feedback.setAttribute('role', kind === 'error' ? 'alert' : 'status');
+}
+
 // Marca (o desmarca) que el nombre ya se encontró: la línea se llena, aparece una palomita y el saludo sube.
 function setFound(found) {
   nameField.classList.toggle('is-found', found);
@@ -350,7 +357,7 @@ async function lookupGuest(name) {
 }
 
 guestName.addEventListener('input', () => {
-  feedback.textContent = '';
+  showFeedback('');
   currentGuest = null;
   setFound(false);
   resetPasses();
@@ -446,30 +453,32 @@ rsvpForm.addEventListener('submit', async (event) => {
   event.preventDefault();
   const guest = currentGuest;
   if (!guest) {
-    feedback.textContent = 'Escribe tu nombre y apellido tal como aparece en tu invitación.';
+    showFeedback('Escribe tu nombre y apellido tal como aparece en tu invitación.', 'error');
     return;
   }
   if (guestPhone.value.replace(/\D/g, '').length < 7) {
-    feedback.textContent = 'Escribe tu número de celular completo.';
+    showFeedback('Escribe tu número de celular completo.', 'error');
     return;
   }
   const attending = Number(guestPasses.value);
   if (I.turnstileSiteKey && !turnstileToken) {
-    feedback.textContent = 'Estamos comprobando que eres una persona. Inténtalo de nuevo en unos segundos.';
+    showFeedback('Estamos comprobando que eres una persona. Inténtalo de nuevo en unos segundos.', 'warn');
     renderTurnstile();
     return;
   }
 
   const submitButton = rsvpForm.querySelector('button[type="submit"]');
   submitButton.disabled = true;
-  feedback.textContent = 'Enviando tu respuesta…';
+  showFeedback('Enviando tu respuesta…');
   const result = await sendRsvp(guest, attending, guestPhone.value, guestNote.value.trim());
   submitButton.disabled = false;
   // El token de Turnstile sirve una sola vez: se pide uno nuevo para el próximo intento.
   if (turnstileId !== null) { turnstileToken = ''; window.turnstile.reset(turnstileId); }
   if (!result.ok) {
-    feedback.textContent =
-      rsvpErrors[result.error] || 'No pudimos guardar tu respuesta. Inténtalo de nuevo en un momento.';
+    showFeedback(
+      rsvpErrors[result.error] || 'No pudimos guardar tu respuesta. Inténtalo de nuevo en un momento.',
+      'error'
+    );
     return;
   }
 
@@ -481,9 +490,9 @@ rsvpForm.addEventListener('submit', async (event) => {
       ? `Hola, soy ${guest.name}. Confirmo mi asistencia con ${passesText(attending)}.`
       : `Hola, soy ${guest.name}. Lamentablemente no podré asistir.`;
     window.open(`https://wa.me/${I.whatsapp}?text=${encodeURIComponent(text)}`, '_blank', 'noopener');
-    feedback.textContent = `${reply} Se abrió WhatsApp para enviar tu respuesta.`;
+    showFeedback(`${reply} Se abrió WhatsApp para enviar tu respuesta.`, 'success');
   } else {
-    feedback.textContent = reply;
+    showFeedback(reply, 'success');
   }
   currentGuest = null;
   setFound(false);
