@@ -159,7 +159,9 @@ window.INVITE = {
   inviteId: 'muestra-3',
 
   // Protección contra spam (Cloudflare Turnstile). Es la clave PÚBLICA del widget; es la misma
-  // para todas las invitaciones. Déjala vacía para apagar la verificación.
+  // para todas las invitaciones. No la borres: JotaPG siempre exige la verificación al confirmar,
+  // así que sin ella nadie podría confirmar. Cada invitación nueva también hay que agregarla
+  // (su dirección, sin https) a la lista de Turnstile en Cloudflare; /admin te la muestra.
   turnstileSiteKey: '0x4AAAAAAGK7zI2py3imlYle',
 
   /* ==========================================================================

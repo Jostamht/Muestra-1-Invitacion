@@ -403,15 +403,22 @@ guestPhone.addEventListener('input', () => {
 // Aparece solo si Cloudflare duda de que sea una persona (appearance: interaction-only).
 let turnstileId = null;
 let turnstileToken = '';
+let turnstileFailed = false; // Cloudflare avisó de un error (por ejemplo, esta dirección no está en su lista)
+let turnstileStartedAt = 0;
 function renderTurnstile() {
   if (!I.turnstileSiteKey || turnstileId !== null || !window.turnstile) return;
+  turnstileStartedAt = Date.now();
   turnstileId = window.turnstile.render('#turnstileBox', {
     sitekey: I.turnstileSiteKey,
     appearance: 'interaction-only',
-    callback: (token) => { turnstileToken = token; },
+    callback: (token) => { turnstileToken = token; turnstileFailed = false; },
     'expired-callback': () => { turnstileToken = ''; },
-    'error-callback': () => { turnstileToken = ''; }
+    'error-callback': () => { turnstileToken = ''; turnstileFailed = true; }
   });
+}
+// ¿La verificación está atascada y no va a terminar sola? (error de Cloudflare, el script no cargó o pasaron 15 s)
+function turnstileStuck() {
+  return turnstileFailed || !window.turnstile || (turnstileStartedAt && Date.now() - turnstileStartedAt > 15000);
 }
 // El script de Cloudflare carga aparte (async): se intenta al cargar la página y al abrir el sobre.
 window.addEventListener('load', renderTurnstile);
@@ -446,6 +453,7 @@ const rsvpErrors = {
   guest_not_found: 'Escribe tu nombre y apellido tal como aparece en tu invitación.',
   invalid_guests_count: 'La cantidad de pases no es válida. Elige una de la lista.',
   turnstile_failed: 'No pudimos comprobar que eres una persona. Espera unos segundos e inténtalo de nuevo.',
+  turnstile_not_configured: 'Por ahora esta invitación no puede recibir confirmaciones. Avísales a los novios, por favor.',
   too_many_attempts: 'Demasiados intentos con ese nombre. Espera unos minutos e inténtalo de nuevo.'
 };
 
@@ -462,7 +470,11 @@ rsvpForm.addEventListener('submit', async (event) => {
   }
   const attending = Number(guestPasses.value);
   if (I.turnstileSiteKey && !turnstileToken) {
-    showFeedback('Estamos comprobando que eres una persona. Inténtalo de nuevo en unos segundos.', 'warn');
+    if (turnstileStuck()) {
+      showFeedback('No pudimos comprobar que eres una persona. Recarga la página e inténtalo de nuevo; si sigue igual, avísales a los novios.', 'error');
+    } else {
+      showFeedback('Estamos comprobando que eres una persona. Inténtalo de nuevo en unos segundos.', 'warn');
+    }
     renderTurnstile();
     return;
   }

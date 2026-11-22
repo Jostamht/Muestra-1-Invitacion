@@ -44,6 +44,9 @@ tools/sincronizar.mjs  Actualiza la vista previa al compartir y avisa de datos d
    y revisando todas las secciones, en computadora y en celular.
 8. **Publicar:** conectar el repositorio nuevo a Cloudflare Pages (sin comando de build, carpeta de salida
    la raíz `/`). Revisar en **Deployments** que aparezca el commit nuevo.
+   Después, agregar la dirección de la invitación (sin `https://`) a la lista de Turnstile en Cloudflare
+   (Turnstile → el widget → Hostname Management); `/admin` de JotaPG la muestra lista para copiar. Sin esto
+   nadie puede confirmar.
 9. **Probar la confirmación:** en `/admin` agregar un invitado de prueba, confirmar desde la invitación
    con su nombre y celular completo, y ver la respuesta en el panel. Borrar el invitado de prueba.
 10. **Entregar:** en `/admin`, **Copiar mensaje para la pareja** y enviarlo por privado.
