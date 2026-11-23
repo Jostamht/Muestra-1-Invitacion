@@ -497,15 +497,7 @@ rsvpForm.addEventListener('submit', async (event) => {
   const reply = attending > 0
     ? `¡Gracias, ${guest.name}! Confirmaste ${passesText(attending)}.`
     : `Gracias por avisarnos, ${guest.name}. Lamentamos que no puedas acompañarnos.`;
-  if (I.whatsapp) {
-    const text = attending > 0
-      ? `Hola, soy ${guest.name}. Confirmo mi asistencia con ${passesText(attending)}.`
-      : `Hola, soy ${guest.name}. Lamentablemente no podré asistir.`;
-    window.open(`https://wa.me/${I.whatsapp}?text=${encodeURIComponent(text)}`, '_blank', 'noopener');
-    showFeedback(`${reply} Se abrió WhatsApp para enviar tu respuesta.`, 'success');
-  } else {
-    showFeedback(reply, 'success');
-  }
+  showFeedback(reply, 'success');
   currentGuest = null;
   setFound(false);
   rsvpForm.reset();

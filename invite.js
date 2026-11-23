@@ -28,10 +28,6 @@ window.INVITE = {
   receptionTime: '19:00',
   zoomTime: '17:00 · hora de Bolivia',
 
-  // Número con código de país y sin "+", por ejemplo '59171234567'.
-  // Si se deja vacío, la confirmación solo se muestra en pantalla.
-  whatsapp: '',
-
   /* ---------- 2. Textos de bienvenida ---------- */
   heroNote: 'Nos casamos. Nos encantará que seas parte de este día inolvidable.',
   introCopy: 'Hay días que merecen guardarse para siempre. Con la alegría de nuestras familias, queremos compartir contigo el comienzo de nuestra nueva historia.',
