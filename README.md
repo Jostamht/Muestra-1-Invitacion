@@ -40,6 +40,10 @@ tools/sincronizar.mjs  Actualiza la vista previa al compartir y avisa de datos d
 5. **Música:** si la pareja tiene su canción, reemplazar `audio/wedding.mp3` (mismo nombre).
 6. **Correr** `node tools/sincronizar.mjs`. Actualiza la vista previa que sale al compartir el enlace
    en WhatsApp y lista lo que todavía tiene datos de ejemplo. No debe quedar ningún aviso.
+   También pone la etiqueta `noindex` para que Google no muestre la invitación en sus resultados (lleva
+   direcciones y la clave de Zoom). Solo la muestra sale en Google, y eso lo decide `demoIndexable` dentro del
+   bloque DEMO: al borrar el bloque, la invitación queda oculta sola. Esto no es una contraseña: quien tenga
+   el enlace sí puede abrirla.
 7. **Probar** abriendo `index.html` desde un servidor local (`python3 -m http.server`), tocando el sello
    y revisando todas las secciones, en computadora y en celular.
 8. **Publicar:** conectar el repositorio nuevo a Cloudflare Pages (sin comando de build, carpeta de salida

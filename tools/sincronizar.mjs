@@ -1,6 +1,8 @@
 // Uso:  node tools/sincronizar.mjs
 // 1) Escribe en index.html las etiquetas de vista previa (título, descripción, WhatsApp/Facebook/X)
 //    a partir de invite.js. Esas etiquetas las leen las apps sin ejecutar la página.
+//    También pone la etiqueta «noindex» (que Google no la muestre en sus resultados) en toda invitación
+//    que no sea la muestra: una boda real lleva direcciones y la clave de Zoom.
 // 2) Avisa si en invite.js quedó algún dato de ejemplo sin cambiar.
 import { readFileSync, writeFileSync } from 'node:fs';
 import vm from 'node:vm';
@@ -21,8 +23,12 @@ const share = I.share || {};
 const abs = (u) => (/^https?:/.test(u || '') ? u : new URL(u || '', share.siteUrl).href);
 const image = abs(share.image);
 
+// Oculta para los buscadores salvo que sea la muestra (demoIndexable: true, dentro del bloque DEMO).
+const oculta = I.demoIndexable !== true;
+const robots = oculta ? `    <meta name="robots" content="noindex, nofollow" />\n` : '';
+
 const head = `    <!-- JP:HEAD (lo escribe tools/sincronizar.mjs; no editar a mano) -->
-    <meta name="description" content="${esc(`Invitación de boda de ${I.bride} y ${I.groom} — ${dateLong}.`)}" />
+${robots}    <meta name="description" content="${esc(`Invitación de boda de ${I.bride} y ${I.groom} — ${dateLong}.`)}" />
     <title>${esc(`${names} — ${dateShort}`)}</title>
     <meta property="og:type" content="website" />
     <meta property="og:title" content="${esc(`${names} — Nuestra boda`)}" />
@@ -44,6 +50,9 @@ const re = /[ \t]*<!-- JP:HEAD[\s\S]*?<!-- \/JP:HEAD -->/;
 if (!re.test(html)) { console.error('Falta el bloque JP:HEAD en index.html'); process.exit(1); }
 writeFileSync(file, html.replace(re, head));
 console.log('Vista previa actualizada:', `${names} — ${dateLong}`);
+console.log(oculta
+  ? 'Oculta para Google y otros buscadores (noindex).'
+  : 'Visible para los buscadores (solo la muestra: demoIndexable).');
 
 // Avisos: datos de ejemplo que no deberían quedar en una boda real.
 const text = JSON.stringify(I);

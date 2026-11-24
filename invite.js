@@ -167,6 +167,9 @@ window.INVITE = {
      formulario de confirmación. tools/sincronizar.mjs avisa si sigue aquí.
      ========================================================================== */
   // Primera línea = título; cada línea siguiente = «Nombre · celular».
-  demoHint: 'Invitación de ejemplo. Para probar la confirmación usa uno de estos invitados:\nInvitado 1 · 77717771\nInvitado 2 · 77727772\nInvitado 3 · 77737773'
+  demoHint: 'Invitación de ejemplo. Para probar la confirmación usa uno de estos invitados:\nInvitado 1 · 77717771\nInvitado 2 · 77727772\nInvitado 3 · 77737773',
+  // Solo la muestra puede aparecer en Google. Al borrar este bloque (boda real), la invitación queda
+  // oculta para los buscadores sin que tengas que hacer nada más (tools/sincronizar.mjs pone la etiqueta).
+  demoIndexable: true
   /* ===================== FIN DEL BLOQUE DEMO ===================== */
 };
