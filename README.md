@@ -20,7 +20,7 @@ styles.css             Diseño
 fotos/                 Fotos de la pareja (en la plantilla se usan fotos de ejemplo de Unsplash)
 audio/wedding.mp3      Música de fondo
 fonts/                 Tipografías
-tools/sincronizar.mjs  Actualiza la vista previa al compartir y avisa de datos de ejemplo pendientes
+tools/sincronizar.mjs  Actualiza la vista previa al compartir y avisa de lo que falta o quedó de ejemplo
 ```
 
 ## Hacer una invitación nueva
@@ -39,7 +39,12 @@ tools/sincronizar.mjs  Actualiza la vista previa al compartir y avisa de datos d
    Si hay código QR para regalos o imagen de mapa, también van en `fotos/`.
 5. **Música:** si la pareja tiene su canción, reemplazar `audio/wedding.mp3` (mismo nombre).
 6. **Correr** `node tools/sincronizar.mjs`. Actualiza la vista previa que sale al compartir el enlace
-   en WhatsApp y lista lo que todavía tiene datos de ejemplo. No debe quedar ningún aviso.
+   en WhatsApp y lista lo que todavía tiene datos de ejemplo o algo que haría fallar la invitación:
+   el ID de Zoom de ejemplo, una fecha sin zona horaria, una galería que no tiene exactamente 6 fotos,
+   archivos de `fotos/` que no existen (ojo con mayúsculas y minúsculas), una dirección `siteUrl` sin `https://`
+   o sin la barra final, y la clave de Turnstile vacía. No debe quedar ningún aviso.
+   Si la fecha (`eventStart`) falta o no es una fecha real (por ejemplo 30 de febrero), sale un ERROR, el programa
+   se detiene y no cambia nada: se corrige `invite.js` y se vuelve a correr.
    También pone la etiqueta `noindex` para que Google no muestre la invitación en sus resultados (lleva
    direcciones y la clave de Zoom). Solo la muestra sale en Google, y eso lo decide `demoIndexable` dentro del
    bloque DEMO: al borrar el bloque, la invitación queda oculta sola. Esto no es una contraseña: quien tenga
