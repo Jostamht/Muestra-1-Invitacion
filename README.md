@@ -83,6 +83,6 @@ tools/sincronizar.mjs  Actualiza la vista previa al compartir y avisa de lo que 
 ## La invitación de ejemplo
 
 Esta copia es la invitación de ejemplo (`muestra-3` en JotaPG). Para que quien la vea pueda probar la
-confirmación, en `/admin` la boda `muestra-3` tiene invitados de muestra: `Invitado Ejemplo 1` (71111111),
-`Invitado Ejemplo 2` (72222222) e `Invitado Ejemplo 3` (73333333). La pista que los muestra es el bloque DEMO
-de `invite.js`.
+confirmación, en `/admin` la boda `muestra-3` tiene invitados de muestra: `Invitado 1` (77717771),
+`Invitado 2` (77727772) e `Invitado 3` (77737773). La pista que los muestra es el bloque DEMO
+de `invite.js`; si cambias los invitados en `/admin`, cambia también esa pista.
