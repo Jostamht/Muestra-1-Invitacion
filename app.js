@@ -3,6 +3,12 @@ const I = window.INVITE || {};
 
 /* ---------- Datos de la invitación (invite.js) ---------- */
 const eventDate = new Date(I.eventStart || '2026-12-31T17:00:00-04:00');
+const eventEnd = new Date(eventDate.getTime() + (I.durationHours || 7) * 3600000);
+// En qué momento está la boda: antes de empezar, durante, o ya pasó (después de la duración indicada en invite.js).
+function weddingPhase() {
+  const now = Date.now();
+  return now < eventDate.getTime() ? 'before' : now < eventEnd.getTime() ? 'during' : 'after';
+}
 
 /* ---------- Secciones que se arman con los datos de invite.js ---------- */
 function el(tag, attrs, ...children) {
@@ -213,7 +219,7 @@ function applyInvitation() {
   if (description) description.content = `Invitación de boda de ${I.bride} y ${I.groom} — ${dateDay}.`;
 
   const stamp = (date) => date.toISOString().replace(/[-:]|\.\d{3}/g, '');
-  const end = new Date(eventDate.getTime() + (I.durationHours || 7) * 3600000);
+  const end = eventEnd;
   const calendarLink = $('calendarLink');
   if (calendarLink) {
     calendarLink.href = 'https://calendar.google.com/calendar/render?action=TEMPLATE'
@@ -248,7 +254,30 @@ if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitNames);
 /* ---------- Cuenta regresiva ---------- */
 const units = { days: 86400000, hours: 3600000, minutes: 60000, seconds: 1000 };
 
+// Cuando llega el día, la cuenta regresiva se cambia por un mensaje; cuando pasa la boda, además se cierra la confirmación.
+let shownPhase = 'before';
+function applyPhase(phase) {
+  shownPhase = phase;
+  if (phase === 'before') return;
+  $('countdownSection').classList.add('is-over');
+  document.querySelector('#countdownSection .timer').hidden = true;
+  if (phase === 'during') {
+    $('countMeta').textContent = 'Hoy es el día';
+    $('count-title').textContent = '¡Hoy es el gran día!';
+    return;
+  }
+  $('countMeta').textContent = 'Gracias por tanto cariño';
+  $('count-title').textContent = 'Ya fue nuestro gran día';
+  $('rsvpMeta').textContent = 'Gracias por todo';
+  $('rsvp-title').textContent = '¡Gracias!';
+  $('rsvpIntro').textContent = 'Ya pasó el gran día y las confirmaciones están cerradas. Gracias por acompañarnos y por todo su cariño.';
+  $('rsvpForm').hidden = true;
+}
+
 function updateCountdown() {
+  const phase = weddingPhase();
+  if (phase !== shownPhase) applyPhase(phase);
+  if (phase !== 'before') return;
   let remaining = Math.max(0, eventDate.getTime() - Date.now());
   Object.entries(units).forEach(([name, size]) => {
     const value = Math.floor(remaining / size);
@@ -406,7 +435,7 @@ let turnstileToken = '';
 let turnstileFailed = false; // Cloudflare avisó de un error (por ejemplo, esta dirección no está en su lista)
 let turnstileStartedAt = 0;
 function renderTurnstile() {
-  if (!I.turnstileSiteKey || turnstileId !== null || !window.turnstile) return;
+  if (!I.turnstileSiteKey || turnstileId !== null || !window.turnstile || weddingPhase() === 'after') return;
   turnstileStartedAt = Date.now();
   turnstileId = window.turnstile.render('#turnstileBox', {
     sitekey: I.turnstileSiteKey,
@@ -459,6 +488,7 @@ const rsvpErrors = {
 
 rsvpForm.addEventListener('submit', async (event) => {
   event.preventDefault();
+  if (weddingPhase() === 'after') return; // ya pasó la boda: la confirmación está cerrada
   const guest = currentGuest;
   if (!guest) {
     showFeedback('Escribe tu nombre y apellido tal como aparece en tu invitación.', 'error');

@@ -76,8 +76,8 @@
         <div class="family-grid" id="familyGrid"></div>
       </section>
 
-      <section class="countdown section" aria-labelledby="count-title">
-        <div><p class="meta">El gran día se acerca</p><h2 id="count-title">Falta muy poco</h2></div>
+      <section class="countdown section" id="countdownSection" aria-labelledby="count-title">
+        <div><p class="meta" id="countMeta">El gran día se acerca</p><h2 id="count-title">Falta muy poco</h2></div>
         <div class="timer reveal" aria-live="polite">
           <div><strong id="days">--</strong><span>Días</span></div><div><strong id="hours">--</strong><span>Horas</span></div><div><strong id="minutes">--</strong><span>Minutos</span></div><div><strong id="seconds">--</strong><span>Segundos</span></div>
         </div>
@@ -116,7 +116,7 @@
 
 
       <footer id="asistencia" class="footer" aria-labelledby="rsvp-title">
-        <div class="footer-copy reveal"><p class="meta">Tu presencia nos hará felices</p><h2 id="rsvp-title">¿Nos acompañas?</h2><p>Busca tu nombre y confirma tus pases.</p>
+        <div class="footer-copy reveal"><p class="meta" id="rsvpMeta">Tu presencia nos hará felices</p><h2 id="rsvp-title">¿Nos acompañas?</h2><p id="rsvpIntro">Busca tu nombre y confirma tus pases.</p>
           <p class="demo-hint" id="demoHint" hidden></p>
           <form class="rsvp-form" id="rsvpForm">
             <label>Nombre y apellido<input id="guestName" name="guestName" type="search" autocomplete="name" placeholder="Escribe tu nombre" required /></label>

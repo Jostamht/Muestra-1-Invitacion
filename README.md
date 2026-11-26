@@ -79,6 +79,10 @@ tools/sincronizar.mjs  Actualiza la vista previa al compartir y avisa de lo que 
   por eso la escribe `tools/sincronizar.mjs` dentro de `index.html`. Si se cambia algo de `invite.js`,
   se vuelve a correr.
 - Las fotos de ejemplo son de Unsplash. En una boda real se reemplazan todas.
+- El día de la boda la cuenta regresiva se cambia por «¡Hoy es el gran día!», y cuando pasan las horas de
+  `durationHours` desde `eventStart` se cierra la confirmación y aparece un mensaje de gracias. Por eso la
+  fecha y la duración de `invite.js` tienen que ser las reales. La invitación de ejemplo también se cierra
+  después de su fecha: hay que correrla a una fecha futura antes de que llegue.
 
 ## La invitación de ejemplo
 

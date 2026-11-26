@@ -60,6 +60,8 @@ h3{font:500 clamp(24px,3vw,40px)/1 var(--serif);letter-spacing:-.04em}
 .family-grid article p,.dress-notes p{font-size:18px;line-height:1.7}
 .countdown{display:grid;grid-template-columns:1fr 1.8fr;gap:40px;align-items:end}
 .countdown h2{margin-bottom:0}
+.countdown.is-over{grid-template-columns:1fr}
+.timer[hidden],.rsvp-form[hidden]{display:none}
 .timer{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 .timer strong{display:block;font:500 clamp(46px,6vw,90px)/.8 var(--serif);letter-spacing:-.06em}
 .timer span{display:block;margin-top:12px;font-size:13px;text-transform:uppercase;letter-spacing:.08em}
