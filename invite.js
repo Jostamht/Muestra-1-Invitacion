@@ -18,7 +18,7 @@ window.INVITE = {
 
   // Fecha y hora de la ceremonia (con zona horaria) y duración total de la fiesta.
   // Pasadas esas horas la invitación cierra la confirmación y cambia la cuenta regresiva por un mensaje de gracias.
-  eventStart: '2026-12-31T17:00:00-04:00',
+  eventStart: '2027-12-31T17:00:00-04:00',
   durationHours: 7,
   timeZone: 'America/La_Paz',
 

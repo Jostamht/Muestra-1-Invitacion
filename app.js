@@ -2,7 +2,7 @@ const $ = (id) => document.getElementById(id);
 const I = window.INVITE || {};
 
 /* ---------- Datos de la invitación (invite.js) ---------- */
-const eventDate = new Date(I.eventStart || '2026-12-31T17:00:00-04:00');
+const eventDate = new Date(I.eventStart || '2027-12-31T17:00:00-04:00');
 const eventEnd = new Date(eventDate.getTime() + (I.durationHours || 7) * 3600000);
 // En qué momento está la boda: antes de empezar, durante, o ya pasó (después de la duración indicada en invite.js).
 function weddingPhase() {
