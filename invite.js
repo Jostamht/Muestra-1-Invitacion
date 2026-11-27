@@ -175,6 +175,6 @@ window.INVITE = {
   // Código del link personal de «Invitado 1» (los 16 caracteres que van después de ?g= en su link).
   // Con él aparece el interruptor «Ver cómo lo ve el invitado». Se copia desde el panel de JotaPG
   // (botón «Copiar link» de Invitado 1). Si queda vacío, el interruptor no aparece.
-  demoPersonalCode: ''
+  demoPersonalCode: '15de477b55a5211b'
   /* ===================== FIN DEL BLOQUE DEMO ===================== */
 };

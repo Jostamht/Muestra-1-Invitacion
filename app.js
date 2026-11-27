@@ -439,6 +439,7 @@ let onModeChange = () => {};
 const introDefault = $('rsvpIntro').textContent;
 
 function setPersonalLayout(on) {
+  $('bienvenida').hidden = !on;
   if (weddingPhase() !== 'after') $('rsvpIntro').textContent = on ? 'Confirma tus pases.' : introDefault;
   nameField.hidden = on;
   phoneField.hidden = on;
@@ -474,6 +475,8 @@ async function enterPersonal(code) {
   if (result && result.found) {
     currentGuest = { name: result.name, passes: result.passes };
     fillPasses(result.passes);
+    $('welcome-name').textContent = result.name;
+    $('welcomePasses').textContent = `Tienes ${passesText(result.passes)} reservado${result.passes === 1 ? '' : 's'} para ti.`;
     setPersonalLayout(true);
     guestHint.textContent = `Hola, ${result.name}. Tienes ${passesText(result.passes)} disponibles.`;
     setFound(true);

@@ -85,7 +85,9 @@ tools/sincronizar.mjs  Actualiza la vista previa al compartir y avisa de lo que 
   después de su fecha: hay que correrla a una fecha futura antes de que llegue.
 - **Link personal.** Si en `/admin` la boda se configura para confirmar con link personal (o «las dos formas»),
   cada invitado recibe un link como `https://tu-invitacion.pages.dev/?g=0123456789abcdef`. Al abrirlo, la
-  invitación lo saluda por su nombre, ya trae sus pases y no le pide nombre ni celular. No hay que tocar
+  invitación lo saluda por su nombre, ya trae sus pases y no le pide nombre ni celular. Justo después de la
+  portada de los novios aparece un recibimiento con su nombre bien grande («Esta invitación es para…»), cuántos pases
+  tiene y un botón que lleva a confirmar; al final de la invitación responde si irá o no y con cuántos pases. No hay que tocar
   `invite.js` para esto: el código del link lo reconoce JotaPG. Si el link está mal escrito, la invitación avisa
   que no es válido. Sin `?g=` todo funciona como antes (el invitado escribe su nombre y celular).
 
