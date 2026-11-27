@@ -83,6 +83,11 @@ tools/sincronizar.mjs  Actualiza la vista previa al compartir y avisa de lo que 
   `durationHours` desde `eventStart` se cierra la confirmación y aparece un mensaje de gracias. Por eso la
   fecha y la duración de `invite.js` tienen que ser las reales. La invitación de ejemplo también se cierra
   después de su fecha: hay que correrla a una fecha futura antes de que llegue.
+- **Link personal.** Si en `/admin` la boda se configura para confirmar con link personal (o «las dos formas»),
+  cada invitado recibe un link como `https://tu-invitacion.pages.dev/?g=0123456789abcdef`. Al abrirlo, la
+  invitación lo saluda por su nombre, ya trae sus pases y no le pide nombre ni celular. No hay que tocar
+  `invite.js` para esto: el código del link lo reconoce JotaPG. Si el link está mal escrito, la invitación avisa
+  que no es válido. Sin `?g=` todo funciona como antes (el invitado escribe su nombre y celular).
 
 ## La invitación de ejemplo
 
@@ -90,3 +95,9 @@ Esta copia es la invitación de ejemplo (`muestra-3` en JotaPG). Para que quien 
 confirmación, en `/admin` la boda `muestra-3` tiene invitados de muestra: `Invitado 1` (77717771),
 `Invitado 2` (77727772) e `Invitado 3` (77737773). La pista que los muestra es el bloque DEMO
 de `invite.js`; si cambias los invitados en `/admin`, cambia también esa pista.
+
+La invitación de ejemplo también tiene el interruptor «Ver cómo lo ve el invitado» (escribe nombre y celular /
+con link personal) para mostrar las dos formas. Aparece cuando en el bloque DEMO de `invite.js` se pega el
+código de `Invitado 1` en `demoPersonalCode` (los 16 caracteres que van después de `?g=` en su link, que se
+copia desde el panel de JotaPG). Para que funcione, en `/admin` la boda `muestra-3` debe estar en «Las dos
+formas». Como todo el bloque DEMO se borra en una boda real, el interruptor tampoco aparece ahí.

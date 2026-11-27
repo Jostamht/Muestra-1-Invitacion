@@ -344,6 +344,7 @@ const guestHint = $('guestHint');
 const guestNote = $('guestNote');
 const feedback = $('formFeedback');
 const nameField = guestName.closest('label');
+const phoneField = guestPhone.closest('label');
 
 // Mensaje debajo del formulario. kind: 'error' (rojo), 'warn' (dorado), 'success' (verde) o '' (neutro).
 function showFeedback(text, kind = '') {
@@ -370,13 +371,14 @@ function resetPasses() {
   guestPasses.disabled = true;
 }
 
-// Pregunta a JotaPG quién es. Devuelve { found, name, passes, ambiguous } o null si falló la conexión.
-async function lookupGuest(name) {
+// Pregunta a JotaPG quién es, por nombre ({ name }) o por el código del link personal ({ code }).
+// Devuelve { found, name, passes, ambiguous } o null si falló la conexión.
+async function lookupGuest(query) {
   try {
     const res = await fetch(I.lookupUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ invite_id: I.inviteId, name })
+      body: JSON.stringify({ invite_id: I.inviteId, ...query })
     });
     if (!res.ok) return null;
     return await res.json();
@@ -402,7 +404,7 @@ guestName.addEventListener('input', () => {
   // Espera a que termine de escribir para no preguntar en cada letra.
   const run = lookupRun;
   lookupTimer = setTimeout(async () => {
-    const result = await lookupGuest(typed);
+    const result = await lookupGuest({ name: typed });
     if (run !== lookupRun) return; // siguió escribiendo: esta respuesta ya no sirve
     if (!result) {
       guestHint.textContent = 'No pudimos buscar tu nombre. Revisa tu conexión e inténtalo de nuevo.';
@@ -427,6 +429,113 @@ guestPhone.addEventListener('input', () => {
   // Se aceptan espacios, guiones y el +; el servidor se queda solo con los dígitos.
   guestPhone.value = guestPhone.value.replace(/[^\d+\s()-]/g, '');
 });
+
+/* ---------- Link personal (?g=código) ----------
+   Cada invitado puede recibir su propio link: la invitación lo saluda por su nombre, ya trae sus pases
+   y no le pide nombre ni celular. El código viaja en la dirección y JotaPG lo reconoce. */
+const guestCodePattern = /^[0-9a-f]{16}$/i;
+let personalCode = ''; // código del link personal activo; '' = el invitado escribe nombre y celular
+let onModeChange = () => {};
+const introDefault = $('rsvpIntro').textContent;
+
+function setPersonalLayout(on) {
+  if (weddingPhase() !== 'after') $('rsvpIntro').textContent = on ? 'Confirma tus pases.' : introDefault;
+  nameField.hidden = on;
+  phoneField.hidden = on;
+  // Los campos escondidos no deben bloquear el envío del formulario.
+  guestName.required = !on;
+  guestPhone.required = !on;
+  guestName.disabled = on;
+  guestPhone.disabled = on;
+  onModeChange();
+}
+
+function fillPasses(passes) {
+  const options = [];
+  for (let n = passes; n >= 1; n -= 1) options.push(new Option(passesText(n), String(n)));
+  options.push(new Option('No podré asistir', '0'));
+  guestPasses.replaceChildren(...options);
+  guestPasses.disabled = false;
+}
+
+async function enterPersonal(code) {
+  personalCode = code;
+  lookupRun += 1;
+  const run = lookupRun;
+  clearTimeout(lookupTimer);
+  currentGuest = null;
+  setFound(false);
+  resetPasses();
+  showFeedback('');
+  guestHint.textContent = 'Abriendo tu invitación personal…';
+  onModeChange();
+  const result = await lookupGuest({ code });
+  if (run !== lookupRun) return; // cambió de modo mientras tanto
+  if (result && result.found) {
+    currentGuest = { name: result.name, passes: result.passes };
+    fillPasses(result.passes);
+    setPersonalLayout(true);
+    guestHint.textContent = `Hola, ${result.name}. Tienes ${passesText(result.passes)} disponibles.`;
+    setFound(true);
+  } else {
+    personalCode = '';
+    setPersonalLayout(false);
+    guestHint.textContent = result
+      ? 'Este link no es válido. Pídeles a los novios que te lo envíen de nuevo.'
+      : 'No pudimos abrir tu invitación personal. Revisa tu conexión y recarga la página.';
+  }
+}
+
+function exitPersonal() {
+  personalCode = '';
+  lookupRun += 1;
+  clearTimeout(lookupTimer);
+  currentGuest = null;
+  setFound(false);
+  resetPasses();
+  guestName.value = '';
+  guestPhone.value = '';
+  guestHint.textContent = '';
+  showFeedback('');
+  setPersonalLayout(false);
+}
+
+// Interruptor de la invitación de ejemplo (solo existe si el bloque DEMO de invite.js trae demoPersonalCode):
+// deja ver las dos formas en que puede confirmar un invitado.
+const demoSwitch = $('demoSwitch');
+const demoHintBox = $('demoHint');
+if (demoSwitch && guestCodePattern.test(I.demoPersonalCode || '')) {
+  const demoButtons = demoSwitch.querySelectorAll('button[data-demo-mode]');
+  onModeChange = () => {
+    demoButtons.forEach((button) => {
+      button.setAttribute('aria-pressed', String((button.dataset.demoMode === 'link') === (personalCode !== '')));
+    });
+    if (demoHintBox && I.demoHint) demoHintBox.hidden = personalCode !== '';
+  };
+  demoButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const wantLink = button.dataset.demoMode === 'link';
+      if (wantLink === (personalCode !== '')) return;
+      try {
+        history.replaceState(null, '', wantLink ? `?g=${I.demoPersonalCode}${location.hash}` : `${location.pathname}${location.hash}`);
+      } catch { /* sin historial: el interruptor sigue funcionando */ }
+      if (wantLink) enterPersonal(I.demoPersonalCode.toLowerCase()); else exitPersonal();
+    });
+  });
+  demoSwitch.hidden = false;
+  onModeChange();
+}
+
+{
+  const fromLink = (new URLSearchParams(window.location.search).get('g') || '').trim();
+  if (fromLink && weddingPhase() !== 'after') {
+    if (guestCodePattern.test(fromLink)) {
+      enterPersonal(fromLink.toLowerCase());
+    } else {
+      guestHint.textContent = 'Este link no es válido. Pídeles a los novios que te lo envíen de nuevo.';
+    }
+  }
+}
 
 /* ---------- Verificación anti-spam (Cloudflare Turnstile) ---------- */
 // Aparece solo si Cloudflare duda de que sea una persona (appearance: interaction-only).
@@ -455,14 +564,15 @@ $('openInvitation').addEventListener('click', () => setTimeout(renderTurnstile, 
 
 // Envía la respuesta a JotaPG. Devuelve { ok: true } o { ok: false, error }.
 async function sendRsvp(guest, attending, phone, message) {
+  // Con link personal se manda el código; si no, nombre y celular.
+  const who = personalCode ? { guest_code: personalCode } : { guest_name: guest.name, phone };
   try {
     const res = await fetch(I.rsvpUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         invite_id: I.inviteId,
-        guest_name: guest.name,
-        phone,
+        ...who,
         attending: attending > 0,
         guests_count: attending,
         message,
@@ -480,6 +590,7 @@ async function sendRsvp(guest, attending, phone, message) {
 const rsvpErrors = {
   wrong_phone: 'Ese número de celular no coincide con el de tu invitación.',
   guest_not_found: 'Escribe tu nombre y apellido tal como aparece en tu invitación.',
+  link_required: 'Esta invitación es personal: abre el link que te enviaron para confirmar.',
   invalid_guests_count: 'La cantidad de pases no es válida. Elige una de la lista.',
   turnstile_failed: 'No pudimos comprobar que eres una persona. Espera unos segundos e inténtalo de nuevo.',
   turnstile_not_configured: 'Por ahora esta invitación no puede recibir confirmaciones. Avísales a los novios, por favor.',
@@ -491,10 +602,15 @@ rsvpForm.addEventListener('submit', async (event) => {
   if (weddingPhase() === 'after') return; // ya pasó la boda: la confirmación está cerrada
   const guest = currentGuest;
   if (!guest) {
-    showFeedback('Escribe tu nombre y apellido tal como aparece en tu invitación.', 'error');
+    showFeedback(
+      personalCode
+        ? 'Este link no es válido. Pídeles a los novios que te lo envíen de nuevo.'
+        : 'Escribe tu nombre y apellido tal como aparece en tu invitación.',
+      'error'
+    );
     return;
   }
-  if (guestPhone.value.replace(/\D/g, '').length < 7) {
+  if (!personalCode && guestPhone.value.replace(/\D/g, '').length < 7) {
     showFeedback('Escribe tu número de celular completo.', 'error');
     return;
   }
@@ -517,10 +633,10 @@ rsvpForm.addEventListener('submit', async (event) => {
   // El token de Turnstile sirve una sola vez: se pide uno nuevo para el próximo intento.
   if (turnstileId !== null) { turnstileToken = ''; window.turnstile.reset(turnstileId); }
   if (!result.ok) {
-    showFeedback(
-      rsvpErrors[result.error] || 'No pudimos guardar tu respuesta. Inténtalo de nuevo en un momento.',
-      'error'
-    );
+    const text = personalCode && result.error === 'guest_not_found'
+      ? 'Este link no es válido. Pídeles a los novios que te lo envíen de nuevo.'
+      : rsvpErrors[result.error];
+    showFeedback(text || 'No pudimos guardar tu respuesta. Inténtalo de nuevo en un momento.', 'error');
     return;
   }
 
@@ -528,6 +644,11 @@ rsvpForm.addEventListener('submit', async (event) => {
     ? `¡Gracias, ${guest.name}! Confirmaste ${passesText(attending)}.`
     : `Gracias por avisarnos, ${guest.name}. Lamentamos que no puedas acompañarnos.`;
   showFeedback(reply, 'success');
+  if (personalCode) {
+    // Con link personal el invitado sigue identificado: puede cambiar su respuesta si quiere.
+    guestNote.value = '';
+    return;
+  }
   currentGuest = null;
   setFound(false);
   rsvpForm.reset();
